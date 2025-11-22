@@ -1,0 +1,33 @@
+/* InternFlow custom styles (light layer on top of Tailwind) */
+
+html,
+body {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+}
+
+/* Soft glassmorphism card helper (used via utility classes) */
+.if-glass {
+  background-color: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+}
+
+/* Simple custom scrollbar for webkit browsers */
+*::-webkit-scrollbar {
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.8); /* slate-400-ish */
+  border-radius: 999px;
+}
+
+

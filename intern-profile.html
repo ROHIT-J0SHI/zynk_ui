@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InternFlow · Intern Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <div
+      class="min-h-screen flex bg-gradient-to-br from-brand-50 via-white to-indigo-50"
+    >
+      <!-- Sidebar -->
+      <aside
+        class="hidden md:flex md:w-64 lg:w-72 flex-col border-r border-white/70 bg-white/80 backdrop-blur-xl"
+      >
+        <div class="px-6 py-5 flex items-center gap-2 border-b border-slate-100">
+          <div
+            class="h-9 w-9 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-white text-lg font-semibold shadow-sm"
+          >
+            IF
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">InternFlow</p>
+            <p class="text-xs text-slate-500">Intern Portal</p>
+          </div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
+          <a
+            href="intern-dashboard.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🏠</span>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="intern-profile.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-brand-100 text-brand-800 font-medium"
+            aria-current="page"
+          >
+            <span>👤</span>
+            <span>Profile</span>
+          </a>
+          <a
+            href="intern-leaves.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🌴</span>
+            <span>Leaves</span>
+          </a>
+          <a
+            href="intern-invoices.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🧾</span>
+            <span>Invoices</span>
+          </a>
+        </nav>
+        <div class="px-4 py-4 border-t border-slate-100 text-xs text-slate-500">
+          Keep this profile updated for smoother payouts.
+        </div>
+      </aside>
+
+      <!-- Main column -->
+      <div class="flex-1 flex flex-col">
+        <!-- Top bar -->
+        <header
+          class="h-16 px-4 md:px-6 flex items-center justify-between border-b border-white/80 bg-white/70 backdrop-blur-xl"
+        >
+          <div>
+            <p class="text-xs text-slate-500">Intern profile</p>
+            <p id="profile-topbar-name" class="text-sm font-semibold">
+              Loading…
+            </p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="hidden sm:flex flex-col items-end">
+              <span class="text-xs text-slate-400">Internship period</span>
+              <span
+                id="profile-topbar-period"
+                class="text-xs font-medium text-slate-700"
+              ></span>
+            </div>
+            <div
+              class="h-9 w-9 rounded-full bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-xs font-semibold text-white"
+              id="profile-topbar-avatar"
+            >
+              IN
+            </div>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 px-4 md:px-6 py-4 md:py-6">
+          <form
+            id="intern-profile-form"
+            class="space-y-4 md:space-y-6 max-w-4xl mx-auto"
+          >
+            <!-- Personal info -->
+            <section
+              class="if-glass rounded-2xl border border-white/70 px-5 py-4 md:px-6 md:py-5 shadow-sm"
+            >
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-semibold text-slate-900">
+                    Personal info
+                  </h2>
+                  <p class="text-xs text-slate-500">
+                    This is how we know who you are.
+                  </p>
+                </div>
+              </div>
+              <div class="grid md:grid-cols-2 gap-3 md:gap-4">
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-name"
+                    class="block text-xs font-medium text-slate-700"
+                    >Full name</label
+                  >
+                  <input
+                    id="profile-name"
+                    name="name"
+                    type="text"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                    required
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-email"
+                    class="block text-xs font-medium text-slate-700"
+                    >Email</label
+                  >
+                  <input
+                    id="profile-email"
+                    name="email"
+                    type="email"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                    required
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-role"
+                    class="block text-xs font-medium text-slate-700"
+                    >Role</label
+                  >
+                  <input
+                    id="profile-role"
+                    name="role"
+                    type="text"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-manager"
+                    class="block text-xs font-medium text-slate-700"
+                    >Manager / Mentor</label
+                  >
+                  <input
+                    id="profile-manager"
+                    name="manager"
+                    type="text"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Internship details -->
+            <section
+              class="if-glass rounded-2xl border border-white/70 px-5 py-4 md:px-6 md:py-5 shadow-sm"
+            >
+              <h2 class="text-sm font-semibold text-slate-900 mb-3">
+                Internship details
+              </h2>
+              <div class="grid md:grid-cols-3 gap-3 md:gap-4">
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-start"
+                    class="block text-xs font-medium text-slate-700"
+                    >Start date</label
+                  >
+                  <input
+                    id="profile-start"
+                    name="internshipStart"
+                    type="date"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                    required
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-end"
+                    class="block text-xs font-medium text-slate-700"
+                    >End date</label
+                  >
+                  <input
+                    id="profile-end"
+                    name="internshipEnd"
+                    type="date"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-stipend"
+                    class="block text-xs font-medium text-slate-700"
+                    >Monthly stipend (₹)</label
+                  >
+                  <input
+                    id="profile-stipend"
+                    name="stipendPerMonth"
+                    type="number"
+                    min="0"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                    required
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Stipend + documents -->
+            <section
+              class="if-glass rounded-2xl border border-white/70 px-5 py-4 md:px-6 md:py-5 shadow-sm"
+            >
+              <h2 class="text-sm font-semibold text-slate-900 mb-3">
+                Stipend & documents
+              </h2>
+              <div class="grid md:grid-cols-2 gap-3 md:gap-4">
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-pan"
+                    class="block text-xs font-medium text-slate-700"
+                    >PAN</label
+                  >
+                  <input
+                    id="profile-pan"
+                    name="pan"
+                    maxlength="10"
+                    pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
+                    class="w-full uppercase rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                  <p class="text-[10px] text-slate-400">
+                    Example format: ABCDE1234F
+                  </p>
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-aadhaar"
+                    class="block text-xs font-medium text-slate-700"
+                    >Aadhaar (masked)</label
+                  >
+                  <input
+                    id="profile-aadhaar"
+                    name="aadhaarMasked"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                    placeholder="XXXX-XXXX-1234"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-bank"
+                    class="block text-xs font-medium text-slate-700"
+                    >Bank account (last 4 digits)</label
+                  >
+                  <input
+                    id="profile-bank"
+                    name="bankAccountLast4"
+                    maxlength="4"
+                    pattern="[0-9]{4}"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-address"
+                    class="block text-xs font-medium text-slate-700"
+                    >Communication address</label
+                  >
+                  <textarea
+                    id="profile-address"
+                    name="address"
+                    rows="3"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500 resize-none"
+                  ></textarea>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-2">
+                Signature upload placeholder will come here when we connect to
+                backend.
+              </p>
+            </section>
+
+            <div class="flex items-center justify-between pt-2">
+              <p id="profile-save-status" class="text-[11px] text-slate-500">
+                Changes are stored locally for now. Backend wiring coming soon.
+              </p>
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                Save profile
+              </button>
+            </div>
+          </form>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/mock-data.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/intern-profile.js"></script>
+  </body>
+</html>
+
+
