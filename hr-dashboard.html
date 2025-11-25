@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zynk · Intern Dashboard</title>
+    <title>Zynk · HR Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="stylesheet" href="assets/css/styles.css" />
@@ -24,38 +24,52 @@
           </div>
           <div>
             <p class="text-sm font-semibold text-slate-900">Zynk</p>
-            <p class="text-xs text-slate-500">Intern Portal</p>
+            <p class="text-xs text-slate-500">HR Console</p>
           </div>
         </div>
         <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
           <a
-            href="intern-dashboard.html"
+            href="hr-dashboard.html"
             class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-brand-100 text-brand-800 font-medium"
             aria-current="page"
           >
-            <span>🏠</span>
+            <span>📊</span>
             <span>Dashboard</span>
           </a>
           <a
-            href="intern-profile.html"
+            href="hr-announcements.html"
             class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           >
-            <span>👤</span>
-            <span>Profile</span>
+            <span>📢</span>
+            <span>Announcements</span>
           </a>
           <a
-            href="intern-leaves.html"
+            href="hr-interns.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🧑‍🎓</span>
+            <span>Interns</span>
+          </a>
+          <a
+            href="hr-leaves.html"
             class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           >
             <span>🌴</span>
             <span>Leaves</span>
           </a>
           <a
-            href="intern-invoices.html"
+            href="hr-invoices.html"
             class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           >
             <span>🧾</span>
             <span>Invoices</span>
+          </a>
+          <a
+            href="hr-policies.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📚</span>
+            <span>Policies</span>
           </a>
         </nav>
         <div class="px-4 py-4 border-t border-slate-100 text-xs text-slate-500">
@@ -67,7 +81,7 @@
             <span>⏏</span>
             <span>Logout</span>
           </button>
-          <p>Built for interns. Backend wiring coming soon.</p>
+          <p>Manage interns, leaves, invoices, and policies from one place.</p>
         </div>
       </aside>
 
@@ -78,24 +92,24 @@
           class="h-16 px-4 md:px-6 flex items-center justify-between border-b border-white/80 bg-white/70 backdrop-blur-xl"
         >
           <div>
-            <p class="text-xs text-slate-500">Welcome back</p>
-            <p id="topbar-greeting" class="text-sm font-semibold">
-              Intern
+            <p class="text-xs text-slate-500">HR overview</p>
+            <p id="hr-topbar-name" class="text-sm font-semibold">
+              HR Admin
             </p>
           </div>
           <div class="flex items-center gap-4">
             <div class="hidden sm:flex flex-col items-end">
-              <span class="text-xs text-slate-400">Current month</span>
+              <span class="text-xs text-slate-400">Today</span>
               <span
-                id="topbar-month"
-                class="text-sm font-medium text-slate-700"
+                id="hr-topbar-date"
+                class="text-xs font-medium text-slate-700"
               ></span>
             </div>
             <div
               class="h-9 w-9 rounded-full bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-xs font-semibold text-white"
-              id="topbar-avatar"
+              id="hr-topbar-avatar"
             >
-              IN
+              HR
             </div>
           </div>
         </header>
@@ -103,161 +117,172 @@
         <!-- Content -->
         <main class="flex-1 px-4 md:px-6 py-4 md:py-6">
           <div class="grid lg:grid-cols-3 gap-4 md:gap-6 items-start">
-            <!-- Left + center: welcome + stats + announcements -->
+            <!-- Left + center: welcome + metrics + activity -->
             <section class="lg:col-span-2 space-y-4 md:space-y-6">
-              <!-- Welcome card -->
+              <!-- Welcome / summary -->
               <div
                 class="if-glass rounded-2xl shadow-sm border border-white/70 px-5 py-4 md:px-6 md:py-5"
               >
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div class="flex-1">
                     <p class="text-xs font-medium text-brand-700 uppercase">
-                      Dashboard
+                      HR Dashboard
                     </p>
                     <h1
-                      id="welcome-title"
+                      id="hr-welcome-title"
                       class="text-lg md:text-xl font-semibold text-slate-900 mt-1"
                     >
-                      Hey Intern 👋
+                      Welcome, HR 👋
                     </h1>
                     <p
-                      id="welcome-subtitle"
+                      id="hr-welcome-subtitle"
                       class="text-xs md:text-sm text-slate-600 mt-1.5"
                     >
-                      We&apos;ll load your internship period and stipend
-                      details here.
+                      See all interns, pending leaves, and invoices at a glance.
                     </p>
                   </div>
                   <div
                     class="px-3 py-2 rounded-xl bg-brand-50 text-xs text-brand-700"
                   >
-                    <p id="welcome-period">Internship: –</p>
-                    <p id="welcome-stipend" class="mt-0.5">
-                      Stipend: –
+                    <p id="hr-summary-interns">Active interns: –</p>
+                    <p id="hr-summary-pending" class="mt-0.5">
+                      Pending leaves: –
+                    </p>
+                    <p id="hr-summary-invoices" class="mt-0.5">
+                      Invoices this month: –
                     </p>
                   </div>
                 </div>
               </div>
 
-              <!-- Quick stats -->
+              <!-- Metric cards -->
               <div class="grid sm:grid-cols-3 gap-3">
                 <div
                   class="if-glass rounded-2xl border border-white/70 px-4 py-3 flex flex-col gap-1 shadow-sm"
                 >
-                  <p class="text-xs text-slate-500">Paid leaves left</p>
+                  <p class="text-xs text-slate-500">Active interns</p>
                   <p
-                    id="stat-paid-left"
+                    id="hr-metric-active-interns"
                     class="text-xl font-semibold text-slate-900"
                   >
                     –
                   </p>
                   <p class="text-[11px] text-slate-400">
-                    Based on your internship start date.
+                    Based on current mock intern list.
                   </p>
                 </div>
                 <div
                   class="if-glass rounded-2xl border border-white/70 px-4 py-3 flex flex-col gap-1 shadow-sm"
                 >
-                  <p class="text-xs text-slate-500">Unpaid leaves</p>
+                  <p class="text-xs text-slate-500">Pending leave approvals</p>
                   <p
-                    id="stat-unpaid"
+                    id="hr-metric-pending-leaves"
                     class="text-xl font-semibold text-slate-900"
                   >
                     –
                   </p>
                   <p class="text-[11px] text-slate-400">
-                    Unpaid leaves will reduce your invoice amount.
+                    Across all interns.
                   </p>
                 </div>
                 <div
                   class="if-glass rounded-2xl border border-white/70 px-4 py-3 flex flex-col gap-1 shadow-sm"
                 >
-                  <p class="text-xs text-slate-500">Next invoice</p>
+                  <p class="text-xs text-slate-500">Invoices this month</p>
                   <p
-                    id="stat-next-invoice"
+                    id="hr-metric-invoices-month"
                     class="text-xl font-semibold text-slate-900"
                   >
                     –
                   </p>
                   <p class="text-[11px] text-slate-400">
-                    We&apos;ll show the month + invoice number here.
+                    Generated using mock invoice data.
                   </p>
                 </div>
               </div>
 
-              <!-- Announcements -->
+              <!-- Recent activity -->
               <section
                 class="if-glass rounded-2xl border border-white/70 px-5 py-4 shadow-sm"
               >
                 <div class="flex items-center justify-between mb-2">
                   <h2 class="text-sm font-semibold text-slate-900">
-                    Announcements
+                    Recent activity
                   </h2>
                   <span class="text-[11px] text-slate-400"
-                    >From your internship team</span
+                    >Last few actions (mock)</span
                   >
                 </div>
                 <div
-                  id="announcements-list"
+                  id="hr-activity-list"
                   class="space-y-2.5 text-xs text-slate-700"
                 >
                   <p class="text-slate-400 text-xs">
-                    Loading announcements…
+                    Loading recent activity…
                   </p>
                 </div>
               </section>
             </section>
 
-            <!-- Right: Policy Buddy chat -->
+            <!-- Right: Quick links -->
             <section
-              class="if-glass rounded-2xl border border-white/70 px-4 py-4 md:px-5 md:py-5 shadow-sm flex flex-col h-[420px]"
+              class="if-glass rounded-2xl border border-white/70 px-4 py-4 md:px-5 md:py-5 shadow-sm flex flex-col gap-3"
             >
-              <div class="flex items-center justify-between mb-2">
+              <h2 class="text-sm font-semibold text-slate-900 mb-1">
+                Quick actions
+              </h2>
+              <a
+                href="hr-interns.html"
+                class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/80 border border-slate-100 hover:bg-slate-50 text-xs"
+              >
                 <div>
-                  <h2 class="text-sm font-semibold text-slate-900">
-                    Policy Buddy
-                  </h2>
+                  <p class="font-medium text-slate-900">View intern directory</p>
                   <p class="text-[11px] text-slate-500">
-                    Ask about leaves, invoices, and internship rules.
+                    Search and inspect any intern.
                   </p>
                 </div>
-                <span
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-medium"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                  Online
-                </span>
-              </div>
-              <div
-                id="policy-chat-messages"
-                class="flex-1 rounded-xl bg-white/70 border border-white/80 px-3 py-2 overflow-y-auto space-y-2 text-xs"
+                <span class="text-lg">↗</span>
+              </a>
+              <a
+                href="hr-leaves.html"
+                class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/80 border border-slate-100 hover:bg-slate-50 text-xs"
               >
-                <div class="flex justify-start">
-                  <div
-                    class="max-w-[80%] rounded-2xl rounded-bl-sm bg-slate-900 text-slate-50 px-3 py-2 text-[11px]"
-                  >
-                    Hi! I&apos;m your Policy Buddy. Ask me things like “How
-                    many paid leaves do I get?” or “How do invoices work?”.
-                  </div>
+                <div>
+                  <p class="font-medium text-slate-900">
+                    Approve pending leaves
+                  </p>
+                  <p class="text-[11px] text-slate-500">
+                    Review requests from all interns.
+                  </p>
                 </div>
-              </div>
-              <form
-                id="policy-chat-form"
-                class="mt-3 flex items-end gap-2 text-xs"
+                <span class="text-lg">↗</span>
+              </a>
+              <a
+                href="hr-invoices.html"
+                class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/80 border border-slate-100 hover:bg-slate-50 text-xs"
               >
-                <textarea
-                  id="policy-input"
-                  class="flex-1 min-h-[36px] max-h-20 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500 resize-none"
-                  rows="2"
-                  placeholder="Ask about leaves, invoices, stipend…"
-                ></textarea>
-                <button
-                  type="submit"
-                  class="inline-flex items-center justify-center h-9 px-3 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  Ask
-                </button>
-              </form>
+                <div>
+                  <p class="font-medium text-slate-900">
+                    Check invoices this month
+                  </p>
+                  <p class="text-[11px] text-slate-500">
+                    Preview and download invoices.
+                  </p>
+                </div>
+                <span class="text-lg">↗</span>
+              </a>
+              <a
+                href="hr-policies.html"
+                class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/80 border border-slate-100 hover:bg-slate-50 text-xs"
+              >
+                <div>
+                  <p class="font-medium text-slate-900">Edit policies & FAQs</p>
+                  <p class="text-[11px] text-slate-500">
+                    Shape what Policy Buddy says.
+                  </p>
+                </div>
+                <span class="text-lg">↗</span>
+              </a>
             </section>
           </div>
         </main>
@@ -266,7 +291,7 @@
 
     <script src="assets/js/mock-data.js"></script>
     <script src="assets/js/app.js"></script>
-    <script src="assets/js/intern-dashboard.js"></script>
+    <script src="assets/js/hr-dashboard.js"></script>
   </body>
 </html>
 

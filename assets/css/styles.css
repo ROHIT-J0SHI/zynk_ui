@@ -1,4 +1,4 @@
-/* InternFlow custom styles (light layer on top of Tailwind) */
+/* Zynk custom styles (light layer on top of Tailwind) */
 
 html,
 body {
@@ -14,6 +14,14 @@ body {
 .if-glass {
   background-color: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(18px);
+}
+
+/* Logo / brand heading font (handwritten feel, using common system fonts) */
+.font-zynk-logo {
+  font-family: "Brush Script MT", "Segoe Script", "Lucida Handwriting",
+    "Comic Sans MS", cursive, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  letter-spacing: 0.08em;
 }
 
 /* Simple custom scrollbar for webkit browsers */

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zynk · HR Interns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <div
+      class="min-h-screen flex bg-gradient-to-br from-brand-50 via-white to-indigo-50"
+    >
+      <!-- Sidebar -->
+      <aside
+        class="hidden md:flex md:w-64 lg:w-72 flex-col border-r border-white/70 bg-white/80 backdrop-blur-xl"
+      >
+        <div class="px-6 py-5 flex items-center gap-2 border-b border-slate-100">
+          <div
+            class="h-9 w-9 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-white text-lg font-semibold shadow-sm"
+          >
+            IF
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">Zynk</p>
+            <p class="text-xs text-slate-500">HR Console</p>
+          </div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
+          <a
+            href="hr-dashboard.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📊</span>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="hr-announcements.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📢</span>
+            <span>Announcements</span>
+          </a>
+          <a
+            href="hr-interns.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-brand-100 text-brand-800 font-medium"
+            aria-current="page"
+          >
+            <span>🧑‍🎓</span>
+            <span>Interns</span>
+          </a>
+          <a
+            href="hr-leaves.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🌴</span>
+            <span>Leaves</span>
+          </a>
+          <a
+            href="hr-invoices.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🧾</span>
+            <span>Invoices</span>
+          </a>
+          <a
+            href="hr-policies.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📚</span>
+            <span>Policies</span>
+          </a>
+        </nav>
+        <div class="px-4 py-4 border-t border-slate-100 text-xs text-slate-500">
+          Search and inspect intern profiles from here.
+        </div>
+      </aside>
+
+      <!-- Main column -->
+      <div class="flex-1 flex flex-col">
+        <!-- Top bar -->
+        <header
+          class="h-16 px-4 md:px-6 flex items-center justify-between border-b border-white/80 bg-white/70 backdrop-blur-xl"
+        >
+          <div>
+            <p class="text-xs text-slate-500">Intern directory</p>
+            <p id="hr-interns-topbar-name" class="text-sm font-semibold">
+              HR Admin
+            </p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="hidden sm:flex flex-col items-end">
+              <span class="text-xs text-slate-400">Total interns</span>
+              <span
+                id="hr-interns-count"
+                class="text-xs font-medium text-slate-700"
+              ></span>
+            </div>
+            <div
+              class="h-9 w-9 rounded-full bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-xs font-semibold text-white"
+            >
+              HR
+            </div>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 px-4 md:px-6 py-4 md:py-6">
+          <div class="grid lg:grid-cols-3 gap-4 md:gap-6 items-start">
+            <!-- Intern list -->
+            <section
+              class="lg:col-span-1 if-glass rounded-2xl border border-white/70 px-4 py-4 md:px-5 md:py-5 shadow-sm flex flex-col gap-3"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <h2 class="text-sm font-semibold text-slate-900">
+                  Interns
+                </h2>
+              </div>
+              <div class="space-y-2 text-xs">
+                <input
+                  id="hr-interns-search"
+                  type="text"
+                  placeholder="Search by name or email"
+                  class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                />
+                <button
+                  id="hr-interns-toggle-create"
+                  type="button"
+                  class="inline-flex items-center px-3 py-1.5 rounded-xl border border-slate-200 bg-white/80 text-[11px] text-slate-700 hover:bg-slate-50"
+                >
+                  + Create intern
+                </button>
+              </div>
+              <form
+                id="hr-interns-create-form"
+                class="hidden mt-2 space-y-2 text-xs border-t border-slate-100 pt-2"
+              >
+                <div class="grid gap-2">
+                  <input
+                    id="hr-create-name"
+                    type="text"
+                    required
+                    placeholder="Full name"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                  <input
+                    id="hr-create-email"
+                    type="email"
+                    required
+                    placeholder="Email (used for intern login)"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                  <input
+                    id="hr-create-role"
+                    type="text"
+                    placeholder="Role (e.g. Product Intern)"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                  <input
+                    id="hr-create-manager"
+                    type="text"
+                    placeholder="Manager / Mentor"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                  <div class="grid grid-cols-2 gap-2">
+                    <input
+                      id="hr-create-start"
+                      type="date"
+                      required
+                      class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                    />
+                    <input
+                      id="hr-create-end"
+                      type="date"
+                      class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                    />
+                  </div>
+                  <input
+                    id="hr-create-stipend"
+                    type="number"
+                    min="0"
+                    placeholder="Monthly stipend (₹)"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="w-full inline-flex items-center justify-center px-3 py-1.5 rounded-xl bg-brand-600 text-white text-[11px] font-semibold hover:bg-brand-700"
+                >
+                  Save intern
+                </button>
+                <p
+                  id="hr-interns-create-status"
+                  class="text-[11px] text-slate-400 mt-1"
+                >
+                  New interns will be stored locally and can log in with the email above.
+                </p>
+              </form>
+              <div
+                id="hr-interns-list"
+                class="mt-2 space-y-1 max-h-[420px] overflow-y-auto text-xs"
+              >
+                <p class="text-[11px] text-slate-400">
+                  Loading interns…
+                </p>
+              </div>
+            </section>
+
+            <!-- Intern detail -->
+            <section
+              class="lg:col-span-2 if-glass rounded-2xl border border-white/70 px-4 py-4 md:px-6 md:py-5 shadow-sm space-y-3"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <h2
+                    id="hr-intern-detail-name"
+                    class="text-sm font-semibold text-slate-900"
+                  >
+                    Select an intern
+                  </h2>
+                  <p
+                    id="hr-intern-detail-role"
+                    class="text-[11px] text-slate-500"
+                  >
+                    You&apos;ll see their details here.
+                  </p>
+                </div>
+                <div class="text-right text-[11px] text-slate-400">
+                  <p id="hr-intern-detail-period">–</p>
+                  <p id="hr-intern-detail-manager">–</p>
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-3 gap-3 text-xs">
+                <div
+                  class="rounded-2xl bg-white/80 border border-slate-100 px-3 py-2"
+                >
+                  <p class="text-[11px] text-slate-500">Leave balance</p>
+                  <p
+                    id="hr-intern-detail-leaves"
+                    class="text-sm font-semibold text-slate-900"
+                  >
+                    –
+                  </p>
+                  <p class="text-[10px] text-slate-400">
+                    Paid left · Unpaid total (computed from mock data).
+                  </p>
+                </div>
+                <div
+                  class="rounded-2xl bg-white/80 border border-slate-100 px-3 py-2"
+                >
+                  <p class="text-[11px] text-slate-500">Last invoice</p>
+                  <p
+                    id="hr-intern-detail-last-invoice"
+                    class="text-sm font-semibold text-slate-900"
+                  >
+                    –
+                  </p>
+                  <p class="text-[10px] text-slate-400">
+                    Month and amount from mock invoices.
+                  </p>
+                </div>
+                <div
+                  class="rounded-2xl bg-white/80 border border-slate-100 px-3 py-2"
+                >
+                  <p class="text-[11px] text-slate-500">Contact</p>
+                  <p
+                    id="hr-intern-detail-email"
+                    class="text-sm font-semibold text-slate-900"
+                  >
+                    –
+                  </p>
+                  <p class="text-[10px] text-slate-400">
+                    Email from intern profile.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 text-xs mt-1">
+                <button
+                  id="hr-open-profile-btn"
+                  type="button"
+                  class="inline-flex items-center px-3 py-1.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                  disabled
+                >
+                  Open as intern
+                </button>
+                <button
+                  id="hr-open-leaves-btn"
+                  type="button"
+                  class="inline-flex items-center px-3 py-1.5 rounded-xl border border-slate-200 bg-white/80 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  disabled
+                >
+                  View leave history
+                </button>
+                <button
+                  id="hr-open-invoices-btn"
+                  type="button"
+                  class="inline-flex items-center px-3 py-1.5 rounded-xl border border-slate-200 bg-white/80 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  disabled
+                >
+                  View invoices
+                </button>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/mock-data.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/hr-interns.js"></script>
+  </body>
+</html>
+
+

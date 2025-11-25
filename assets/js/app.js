@@ -1,9 +1,13 @@
-// Core app helpers and backend-ready API abstraction for InternFlow
+// Core app helpers and backend-ready API abstraction for Zynk
 
 const STORAGE_KEYS = {
   currentIntern: "internflow.currentIntern",
   profileOverride: "internflow.profile",
   leavesOverride: "internflow.leaves",
+  currentHr: "internflow.currentHr",
+  policies: "internflow.policies",
+  hrInterns: "internflow.hr.interns",
+  announcements: "internflow.announcements",
 };
 
 function safeGetLocalStorage(key) {
@@ -33,6 +37,31 @@ function getCurrentIntern() {
 function setCurrentIntern(intern) {
   if (!intern) return;
   safeSetLocalStorage(STORAGE_KEYS.currentIntern, intern);
+}
+
+function getCurrentHr() {
+  const stored = safeGetLocalStorage(STORAGE_KEYS.currentHr);
+  if (stored) return stored;
+  return MOCK_HR_USER ? { ...MOCK_HR_USER } : null;
+}
+
+function setCurrentHr(hr) {
+  if (!hr) return;
+  safeSetLocalStorage(STORAGE_KEYS.currentHr, hr);
+}
+
+function clearAllSessions() {
+  try {
+    window.localStorage.removeItem(STORAGE_KEYS.currentIntern);
+    window.localStorage.removeItem(STORAGE_KEYS.profileOverride);
+    window.localStorage.removeItem(STORAGE_KEYS.leavesOverride);
+    window.localStorage.removeItem(STORAGE_KEYS.currentHr);
+    window.localStorage.removeItem(STORAGE_KEYS.policies);
+    window.localStorage.removeItem(STORAGE_KEYS.hrInterns);
+    window.localStorage.removeItem(STORAGE_KEYS.announcements);
+  } catch (e) {
+    console.warn("LocalStorage clear failed", e);
+  }
 }
 
 // Date + invoice helpers
@@ -91,9 +120,31 @@ function apiGet(path) {
       return mockFetchLeaves();
     }
     case "/intern/announcements":
+      const annsOverride = safeGetLocalStorage(STORAGE_KEYS.announcements);
+      if (annsOverride) return Promise.resolve(annsOverride);
       return mockFetchAnnouncements();
     case "/intern/invoices":
       return mockFetchInvoices();
+    case "/hr/summary":
+      return mockFetchHrSummary();
+    case "/hr/interns":
+      const hrInternsOverride = safeGetLocalStorage(STORAGE_KEYS.hrInterns);
+      if (hrInternsOverride) return Promise.resolve(hrInternsOverride);
+      return mockFetchHrInterns();
+    case "/hr/leaves":
+      return mockFetchHrLeaves();
+    case "/hr/invoices":
+      return mockFetchHrInvoices();
+    case "/hr/policies": {
+      const override = safeGetLocalStorage(STORAGE_KEYS.policies);
+      if (override) return Promise.resolve(override);
+      return mockFetchPolicies();
+    }
+    case "/hr/announcements": {
+      const anns = safeGetLocalStorage(STORAGE_KEYS.announcements);
+      if (anns) return Promise.resolve(anns);
+      return mockFetchAnnouncements();
+    }
     default:
       return Promise.reject(new Error(`Unknown GET path: ${path}`));
   }
@@ -129,6 +180,36 @@ function apiPost(path, body) {
         )
         .then((invoice) => invoice);
     }
+    case "/hr/leaves/decision":
+      return mockDecideLeave(body).then((updated) => updated);
+    case "/hr/invoices": {
+      return mockGenerateHrInvoice({
+        internId: body.internId,
+        month: body.month,
+        year: body.year,
+        helpers: {
+          calculateWorkingDaysForMonth,
+          calculateInvoiceNumber,
+        },
+      }).then((invoice) => invoice);
+    }
+    case "/hr/interns":
+      return mockCreateHrIntern(body).then((created) => {
+        return mockFetchHrInterns().then((all) => {
+          safeSetLocalStorage(STORAGE_KEYS.hrInterns, all);
+          return created;
+        });
+      });
+    case "/hr/policies":
+      return mockSavePolicies(body).then((saved) => {
+        safeSetLocalStorage(STORAGE_KEYS.policies, saved);
+        return saved;
+      });
+    case "/hr/announcements":
+      return mockSaveAnnouncements(body.announcements || []).then((list) => {
+        safeSetLocalStorage(STORAGE_KEYS.announcements, list);
+        return list;
+      });
     case "/api/ai/policy-buddy":
       return mockAskPolicyBuddy(body.question || "");
     default:

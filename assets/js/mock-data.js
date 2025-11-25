@@ -1,4 +1,4 @@
-// Mock data and fake REST-like helpers for InternFlow
+// Mock data and fake REST-like helpers for Zynk
 
 const MOCK_PROFILE = {
   id: "intern-001",
@@ -62,6 +62,45 @@ const MOCK_ANNOUNCEMENTS = [
 
 let MOCK_INVOICES = [];
 
+// HR-side mock data
+const MOCK_HR_USER = {
+  id: "hr-001",
+  name: "HR Admin",
+  email: "hr.admin@example.com",
+  role: "HR",
+};
+
+// Simple intern directory (for now just wrap the single MOCK_PROFILE)
+const MOCK_INTERNS = [
+  {
+    id: MOCK_PROFILE.id,
+    name: MOCK_PROFILE.name,
+    email: MOCK_PROFILE.email,
+    role: MOCK_PROFILE.role,
+    manager: MOCK_PROFILE.manager,
+    internshipStart: MOCK_PROFILE.internshipStart,
+    internshipEnd: MOCK_PROFILE.internshipEnd,
+    status: "Active",
+  },
+];
+
+let MOCK_POLICIES = {
+  leaves:
+    "Interns earn 1 paid leave per month, with unused paid leaves carried forward during the internship. Unpaid leaves may reduce the monthly stipend.",
+  stipend:
+    "Stipend is paid monthly based on working days; paid leaves do not reduce stipend, unpaid leaves do. Invoices show full breakdown.",
+  general:
+    "Interns are expected to maintain professional behavior, communicate leave plans in advance, and keep bank/KYC details updated.",
+  faqs: [
+    {
+      id: "FAQ-001",
+      question: "How many paid leaves do interns get?",
+      answer:
+        "Interns get 1 paid leave per month of internship. Unused paid leaves carry forward.",
+    },
+  ],
+};
+
 function mockFetchProfile() {
   return Promise.resolve({ ...MOCK_PROFILE });
 }
@@ -94,12 +133,187 @@ function mockFetchInvoices() {
   return Promise.resolve(MOCK_INVOICES.map((inv) => ({ ...inv })));
 }
 
+// ---- HR helpers ----
+
+function mockFetchHrSummary() {
+  const activeInterns = MOCK_INTERNS.filter((i) => i.status === "Active").length;
+  const pendingLeaves = MOCK_LEAVES.filter((l) => l.status === "Pending").length;
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+  const invoicesThisMonth = MOCK_INVOICES.filter(
+    (inv) => inv.month === month && inv.year === year
+  ).length;
+
+  const activity = [
+    {
+      id: "ACT-001",
+      message: "Mock: Approved a paid leave for Demo Intern.",
+    },
+    {
+      id: "ACT-002",
+      message: "Mock: Generated latest invoice for Demo Intern.",
+    },
+    {
+      id: "ACT-003",
+      message: "Mock: Updated leave policy text.",
+    },
+  ];
+
+  return Promise.resolve({
+    hr: { ...MOCK_HR_USER },
+    counts: {
+      activeInterns,
+      pendingLeaves,
+      invoicesThisMonth,
+    },
+    activity,
+  });
+}
+
+function mockFetchHrInterns() {
+  return Promise.resolve(MOCK_INTERNS.map((i) => ({ ...i })));
+}
+
+function mockCreateHrIntern(payload) {
+  const nextId = `intern-${(MOCK_INTERNS.length + 1)
+    .toString()
+    .padStart(3, "0")}`;
+  const intern = {
+    id: nextId,
+    name: payload.name || "New Intern",
+    email: payload.email || "",
+    role: payload.role || "Intern",
+    manager: payload.manager || "",
+    internshipStart: payload.internshipStart || MOCK_PROFILE.internshipStart,
+    internshipEnd: payload.internshipEnd || MOCK_PROFILE.internshipEnd,
+    stipendPerMonth:
+      typeof payload.stipendPerMonth === "number"
+        ? payload.stipendPerMonth
+        : MOCK_PROFILE.stipendPerMonth,
+    status: "Active",
+  };
+  MOCK_INTERNS.push(intern);
+  return Promise.resolve({ ...intern });
+}
+
+function mockFetchHrInternById(id) {
+  const intern = MOCK_INTERNS.find((i) => i.id === id) || null;
+  if (!intern) return Promise.resolve(null);
+
+  // For now reuse single-leave/invoice sets
+  const leaves = MOCK_LEAVES.map((l) => ({ ...l }));
+  const invoices = MOCK_INVOICES.map((inv) => ({ ...inv }));
+
+  return Promise.resolve({
+    intern: { ...intern },
+    profile: { ...MOCK_PROFILE },
+    leaves,
+    invoices,
+  });
+}
+
+function mockFetchHrLeaves() {
+  // Flatten leaves with intern name/email
+  const intern = MOCK_INTERNS[0];
+  const list = MOCK_LEAVES.map((l) => ({
+    ...l,
+    internId: intern.id,
+    internName: intern.name,
+    internEmail: intern.email,
+  }));
+  return Promise.resolve(list);
+}
+
+function mockDecideLeave(payload) {
+  const { id, decision } = payload || {};
+  if (!id || !decision) return Promise.resolve(null);
+  MOCK_LEAVES = MOCK_LEAVES.map((l) =>
+    l.id === id
+      ? {
+          ...l,
+          status: decision,
+        }
+      : l
+  );
+  return Promise.resolve(
+    MOCK_LEAVES.find((l) => l.id === id) ? { ...MOCK_LEAVES.find((l) => l.id === id) } : null
+  );
+}
+
+function mockFetchHrInvoices() {
+  const intern = MOCK_INTERNS[0];
+  return Promise.resolve(
+    MOCK_INVOICES.map((inv) => ({
+      ...inv,
+      internId: intern.id,
+      internName: intern.name,
+      status: "Generated",
+    }))
+  );
+}
+
+function mockGenerateHrInvoice(params) {
+  const { internId, month, year, helpers } = params || {};
+  if (!internId) return Promise.reject(new Error("internId is required"));
+
+  const intern = MOCK_INTERNS.find((i) => i.id === internId) || MOCK_INTERNS[0];
+  return mockGenerateInvoice({
+    profile: MOCK_PROFILE,
+    month,
+    year,
+    leaves: MOCK_LEAVES,
+    helpers,
+  }).then((invoice) => ({
+    ...invoice,
+    internId: intern.id,
+    internName: intern.name,
+  }));
+}
+
+function mockFetchPolicies() {
+  return Promise.resolve(JSON.parse(JSON.stringify(MOCK_POLICIES)));
+}
+
+function mockSavePolicies(updated) {
+  if (!updated) return Promise.resolve(JSON.parse(JSON.stringify(MOCK_POLICIES)));
+  MOCK_POLICIES = {
+    ...MOCK_POLICIES,
+    ...updated,
+  };
+  return Promise.resolve(JSON.parse(JSON.stringify(MOCK_POLICIES)));
+}
+
+function mockSaveAnnouncements(list) {
+  const normalized = Array.isArray(list) ? list : [];
+  return Promise.resolve(
+    normalized.map((a) => ({
+      id: a.id || `A-${Math.random().toString(36).slice(2, 7)}`,
+      title: a.title || "",
+      body: a.body || "",
+      tag: a.tag || "",
+    }))
+  );
+}
+
 function mockAskPolicyBuddy(question) {
   const q = (question || "").toLowerCase();
+
+  // First, see if any FAQ matches roughly
+  if (MOCK_POLICIES && Array.isArray(MOCK_POLICIES.faqs)) {
+    const match = MOCK_POLICIES.faqs.find((f) => {
+      const qText = (f.question || "").toLowerCase();
+      return qText && q && q.length > 3 && qText.includes(q.split(" ")[0]);
+    });
+    if (match) {
+      return Promise.resolve({ answer: match.answer || "" });
+    }
+  }
 
   if (q.includes("leave") || q.includes("leaves")) {
     return Promise.resolve({
       answer:
+        (MOCK_POLICIES && MOCK_POLICIES.leaves) ||
         "Interns earn 1 paid leave per month. Unused paid leaves carry forward during the internship. Unpaid leaves reduce your invoice amount.",
     });
   }
@@ -107,12 +321,14 @@ function mockAskPolicyBuddy(question) {
   if (q.includes("stipend") || q.includes("invoice")) {
     return Promise.resolve({
       answer:
+        (MOCK_POLICIES && MOCK_POLICIES.stipend) ||
         "Your monthly stipend is calculated as a base stipend minus any unpaid leave deductions. Paid leaves do not reduce your stipend.",
     });
   }
 
   return Promise.resolve({
     answer:
+      (MOCK_POLICIES && MOCK_POLICIES.general) ||
       "I'm your Policy Buddy! Ask me about leaves, invoices, working days, or stipend rules and I'll explain them in simple language.",
   });
 }

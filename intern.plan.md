@@ -1,4 +1,4 @@
-## InternFlow Intern Frontend Plan
+## Zynk Intern Frontend Plan
 
 ### Scope
 - Build only the **intern-facing frontend** first (playful "intern vibes").

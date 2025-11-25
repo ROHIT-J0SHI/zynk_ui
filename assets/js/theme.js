@@ -1,4 +1,4 @@
-// InternFlow Tailwind theme tokens
+// Zynk Tailwind theme tokens
 // Update colors and other theme values here instead of hardcoding in every page.
 
 tailwind.config = {

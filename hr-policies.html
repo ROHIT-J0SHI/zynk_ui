@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zynk · HR Policies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <div
+      class="min-h-screen flex bg-gradient-to-br from-brand-50 via-white to-indigo-50"
+    >
+      <!-- Sidebar -->
+      <aside
+        class="hidden md:flex md:w-64 lg:w-72 flex-col border-r border-white/70 bg-white/80 backdrop-blur-xl"
+      >
+        <div class="px-6 py-5 flex items-center gap-2 border-b border-slate-100">
+          <div
+            class="h-9 w-9 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-white text-lg font-semibold shadow-sm"
+          >
+            IF
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">Zynk</p>
+            <p class="text-xs text-slate-500">HR Console</p>
+          </div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
+          <a
+            href="hr-dashboard.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📊</span>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="hr-announcements.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📢</span>
+            <span>Announcements</span>
+          </a>
+          <a
+            href="hr-interns.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🧑‍🎓</span>
+            <span>Interns</span>
+          </a>
+          <a
+            href="hr-leaves.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🌴</span>
+            <span>Leaves</span>
+          </a>
+          <a
+            href="hr-invoices.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🧾</span>
+            <span>Invoices</span>
+          </a>
+          <a
+            href="hr-policies.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-brand-100 text-brand-800 font-medium"
+            aria-current="page"
+          >
+            <span>📚</span>
+            <span>Policies</span>
+          </a>
+        </nav>
+        <div class="px-4 py-4 border-t border-slate-100 text-xs text-slate-500">
+          These policies will later power what Policy Buddy says.
+        </div>
+      </aside>
+
+      <!-- Main column -->
+      <div class="flex-1 flex flex-col">
+        <!-- Top bar -->
+        <header
+          class="h-16 px-4 md:px-6 flex items-center justify-between border-b border-white/80 bg-white/70 backdrop-blur-xl"
+        >
+          <div>
+            <p class="text-xs text-slate-500">Policies & FAQs</p>
+            <p id="hr-policies-topbar-name" class="text-sm font-semibold">
+              HR Admin
+            </p>
+          </div>
+          <div class="flex items-center gap-4">
+            <p
+              id="hr-policies-save-status"
+              class="text-[11px] text-slate-400"
+            >
+              Changes are stored locally for now.
+            </p>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
+          <section
+            class="if-glass rounded-2xl border border-white/70 px-4 py-4 md:px-5 md:py-5 shadow-sm space-y-3 text-xs"
+          >
+            <h2 class="text-sm font-semibold text-slate-900">
+              Policy sections
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-3">
+              <div class="space-y-1.5">
+                <label
+                  for="policy-leaves"
+                  class="block text-[11px] font-medium text-slate-700"
+                  >Leave policy</label
+                >
+                <textarea
+                  id="policy-leaves"
+                  rows="5"
+                  class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500 resize-none"
+                ></textarea>
+              </div>
+              <div class="space-y-1.5">
+                <label
+                  for="policy-stipend"
+                  class="block text-[11px] font-medium text-slate-700"
+                  >Stipend & invoices</label
+                >
+                <textarea
+                  id="policy-stipend"
+                  rows="5"
+                  class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500 resize-none"
+                ></textarea>
+              </div>
+              <div class="space-y-1.5">
+                <label
+                  for="policy-general"
+                  class="block text-[11px] font-medium text-slate-700"
+                  >General & conduct</label
+                >
+                <textarea
+                  id="policy-general"
+                  rows="5"
+                  class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500 resize-none"
+                ></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="if-glass rounded-2xl border border-white/70 px-4 py-4 md:px-5 md:py-5 shadow-sm space-y-3 text-xs"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-sm font-semibold text-slate-900">
+                  Policy Buddy FAQ
+                </h2>
+                <p class="text-[11px] text-slate-500">
+                  These Q&A pairs can be used later by the AI backend.
+                </p>
+              </div>
+              <button
+                id="hr-faq-add-btn"
+                class="inline-flex items-center px-3 py-1.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700"
+              >
+                Add FAQ
+              </button>
+            </div>
+
+            <div
+              id="hr-faq-list"
+              class="space-y-2 max-h-72 overflow-y-auto"
+            >
+              <p class="text-[11px] text-slate-400">
+                No FAQs yet. Add one using the button above.
+              </p>
+            </div>
+          </section>
+
+          <div class="flex justify-end">
+            <button
+              id="hr-policies-save-btn"
+              class="inline-flex items-center px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700"
+            >
+              Save policies & FAQs
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/mock-data.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/hr-policies.js"></script>
+  </body>
+</html>
+
+

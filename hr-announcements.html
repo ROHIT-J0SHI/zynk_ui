@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zynk · HR Announcements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <div
+      class="min-h-screen flex bg-gradient-to-br from-brand-50 via-white to-indigo-50"
+    >
+      <!-- Sidebar -->
+      <aside
+        class="hidden md:flex md:w-64 lg:w-72 flex-col border-r border-white/70 bg-white/80 backdrop-blur-xl"
+      >
+        <div class="px-6 py-5 flex items-center gap-2 border-b border-slate-100">
+          <div
+            class="h-9 w-9 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-500 flex items-center justify-center text-white text-lg font-semibold shadow-sm"
+          >
+            IF
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">Zynk</p>
+            <p class="text-xs text-slate-500">HR Console</p>
+          </div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
+          <a
+            href="hr-dashboard.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📊</span>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="hr-announcements.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-brand-100 text-brand-800 font-medium"
+            aria-current="page"
+          >
+            <span>📢</span>
+            <span>Announcements</span>
+          </a>
+          <a
+            href="hr-interns.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🧑‍🎓</span>
+            <span>Interns</span>
+          </a>
+          <a
+            href="hr-leaves.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🌴</span>
+            <span>Leaves</span>
+          </a>
+          <a
+            href="hr-invoices.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>🧾</span>
+            <span>Invoices</span>
+          </a>
+          <a
+            href="hr-policies.html"
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span>📚</span>
+            <span>Policies</span>
+          </a>
+        </nav>
+        <div class="px-4 py-4 border-t border-slate-100 text-xs text-slate-500">
+          Announcements here will appear on intern dashboards.
+        </div>
+      </aside>
+
+      <!-- Main column -->
+      <div class="flex-1 flex flex-col">
+        <!-- Top bar -->
+        <header
+          class="h-16 px-4 md:px-6 flex items-center justify-between border-b border-white/80 bg-white/70 backdrop-blur-xl"
+        >
+          <div>
+            <p class="text-xs text-slate-500">Announcements</p>
+            <p id="hr-ann-topbar-name" class="text-sm font-semibold">
+              HR Admin
+            </p>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
+          <section
+            class="if-glass rounded-2xl border border-white/70 px-4 py-4 md:px-5 md:py-5 shadow-sm space-y-3 text-xs"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-sm font-semibold text-slate-900">
+                  Post announcements
+                </h2>
+                <p class="text-[11px] text-slate-500">
+                  These will show up in the intern dashboard announcements
+                  widget.
+                </p>
+              </div>
+              <button
+                id="hr-ann-add-btn"
+                class="inline-flex items-center px-3 py-1.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700"
+              >
+                Add announcement
+              </button>
+            </div>
+
+            <div
+              id="hr-ann-list"
+              class="space-y-2 max-h-72 overflow-y-auto"
+            >
+              <p class="text-[11px] text-slate-400">
+                No announcements yet. Add one using the button above.
+              </p>
+            </div>
+          </section>
+
+          <div class="flex justify-end">
+            <button
+              id="hr-ann-save-btn"
+              class="inline-flex items-center px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700"
+            >
+              Save announcements
+            </button>
+          </div>
+          <p
+            id="hr-ann-save-status"
+            class="text-[11px] text-slate-400"
+          >
+            Changes are stored locally for now.
+          </p>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/mock-data.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/hr-announcements.js"></script>
+  </body>
+</html>
+
+
