@@ -19,15 +19,57 @@ document.addEventListener("DOMContentLoaded", function () {
   var selectedType = "ALL";
   var selectedRowInternId = null;
 
-  apiGet("/hr/leaves")
-    .then(function (leaves) {
-      leavesCache = leaves || [];
-      updateSummary();
-      renderTable();
-    })
-    .catch(function (err) {
-      console.error("Failed to load HR leaves", err);
-    });
+  // Prefer real backend pending leaves when HR is logged in
+  var hasToken = typeof getAuthToken === "function" && !!getAuthToken();
+
+  function loadLeavesFromBackend() {
+    if (!hasToken || typeof backendGet !== "function") {
+      loadLeavesFromMock();
+      return;
+    }
+    backendGet("/leaves/pending")
+      .then(function (list) {
+        list = list || [];
+        // Map backend LeaveResponse -> UI shape
+        leavesCache = list.map(function (l) {
+          return {
+            id: l.id,
+            // Backend does not expose intern details here; show generic label
+            internId: "",
+            internName: "Intern",
+            date: l.leaveDate,
+            type: l.leaveType, // PAID / UNPAID
+            reason: l.reason,
+            status:
+              l.status === "APPROVED"
+                ? "Approved"
+                : l.status === "REJECTED"
+                ? "Rejected"
+                : "Pending",
+          };
+        });
+        updateSummary();
+        renderTable();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR leaves from backend", err);
+        loadLeavesFromMock();
+      });
+  }
+
+  function loadLeavesFromMock() {
+    apiGet("/hr/leaves")
+      .then(function (leaves) {
+        leavesCache = leaves || [];
+        updateSummary();
+        renderTable();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR leaves (mock)", err);
+      });
+  }
+
+  loadLeavesFromBackend();
 
   function updateSummary() {
     var pending = leavesCache.filter(function (l) {
@@ -120,18 +162,34 @@ document.addEventListener("DOMContentLoaded", function () {
           var id = btn.getAttribute("data-id");
           var decision = btn.getAttribute("data-decision");
           if (!id || !decision) return;
-          apiPost("/hr/leaves/decision", { id: id, decision: decision })
-            .then(function () {
-              return apiGet("/hr/leaves");
-            })
-            .then(function (leaves) {
-              leavesCache = leaves || [];
-              updateSummary();
-              renderTable();
-            })
-            .catch(function () {
-              alert("Could not update leave decision in mock data.");
-            });
+          // Use real backend endpoints when possible
+          if (hasToken && typeof backendFetch === "function") {
+            var path =
+              decision === "Approved"
+                ? "/leaves/" + id + "/approve?approvedBy=HR%20Manager"
+                : "/leaves/" + id + "/reject";
+            backendFetch(path, { method: "PUT" })
+              .then(function () {
+                loadLeavesFromBackend();
+              })
+              .catch(function () {
+                alert("Could not update leave decision on backend.");
+              });
+          } else {
+            // Fallback to mock update
+            apiPost("/hr/leaves/decision", { id: id, decision: decision })
+              .then(function () {
+                return apiGet("/hr/leaves");
+              })
+              .then(function (leaves) {
+                leavesCache = leaves || [];
+                updateSummary();
+                renderTable();
+              })
+              .catch(function () {
+                alert("Could not update leave decision in mock data.");
+              });
+          }
         });
       });
 
@@ -148,44 +206,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function showInternDetail(internId) {
-    apiGet("/hr/interns/" + internId)
-      .then(function (data) {
-        if (!data || !data.intern) return;
-        var intern = data.intern;
-        var leaves = data.leaves || [];
-        var invoices = data.invoices || [];
-
-        if (detailNameEl) detailNameEl.textContent = intern.name || "Intern";
-        if (detailRoleEl) {
-          detailRoleEl.textContent =
-            (intern.role || "Intern") + " · " + (intern.status || "Active");
-        }
-
-        var paidUsed = leaves.filter(function (l) {
-          return l.type === "PAID";
-        }).length;
-        var unpaid = leaves.filter(function (l) {
-          return l.type === "UNPAID";
-        }).length;
-        if (detailBalanceEl) {
-          detailBalanceEl.textContent =
-            paidUsed + " paid used · " + unpaid + " unpaid total";
-        }
-
-        var lastInvoice = invoices[0] || null;
-        if (detailInvoiceEl) {
-          detailInvoiceEl.textContent = lastInvoice
-            ? formatMonthYear(lastInvoice.month, lastInvoice.year) +
-              " · ₹" +
-              (lastInvoice.finalStipend || 0).toLocaleString("en-IN", {
-                maximumFractionDigits: 0,
-              })
-            : "None yet";
-        }
-      })
-      .catch(function (err) {
-        console.error("Failed to load intern detail for leaves view", err);
-      });
+    // Backend pending leaves endpoint does not currently expose intern details.
+    // For now, show a generic message instead of per-intern breakdown.
+    if (detailNameEl) {
+      detailNameEl.textContent = "Intern";
+    }
+    if (detailRoleEl) {
+      detailRoleEl.textContent = "Intern · Active";
+    }
+    if (detailBalanceEl) {
+      detailBalanceEl.textContent =
+        "Open a specific intern profile to see detailed balances.";
+    }
+    if (detailInvoiceEl) {
+      detailInvoiceEl.textContent = "Invoice summary not available here.";
+    }
   }
 
   statusChips.forEach(function (chip) {

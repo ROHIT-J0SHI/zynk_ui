@@ -83,14 +83,44 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  apiGet("/hr/announcements")
-    .then(function (anns) {
-      announcements = anns || [];
-      renderList();
-    })
-    .catch(function (err) {
-      console.error("Failed to load HR announcements", err);
-    });
+  var hasToken = typeof getAuthToken === "function" && !!getAuthToken();
+
+  function loadAnnouncementsFromBackend() {
+    if (!hasToken || typeof backendGet !== "function") {
+      loadAnnouncementsFromMock();
+      return;
+    }
+    backendGet("/announcements/all")
+      .then(function (list) {
+        list = list || [];
+        announcements = list.map(function (a) {
+          return {
+            id: a.id,
+            title: a.title,
+            body: a.body,
+            tag: "", // backend does not track tag; keep UI field optional
+          };
+        });
+        renderList();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR announcements from backend", err);
+        loadAnnouncementsFromMock();
+      });
+  }
+
+  function loadAnnouncementsFromMock() {
+    apiGet("/hr/announcements")
+      .then(function (anns) {
+        announcements = anns || [];
+        renderList();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR announcements (mock)", err);
+      });
+  }
+
+  loadAnnouncementsFromBackend();
 
   if (addBtn) {
     addBtn.addEventListener("click", function () {
@@ -105,28 +135,94 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (saveBtn) {
     saveBtn.addEventListener("click", function () {
-      apiPost("/hr/announcements", { announcements: announcements })
-        .then(function (list) {
-          announcements = list || [];
-          renderList();
-          if (saveStatusEl) {
-            saveStatusEl.textContent = "Announcements saved locally.";
-            saveStatusEl.className =
-              "text-[11px] text-emerald-600 transition-colors";
-            setTimeout(function () {
-              saveStatusEl.textContent =
-                "Changes are stored locally for now.";
-              saveStatusEl.className = "text-[11px] text-slate-400";
-            }, 2500);
-          }
-        })
-        .catch(function () {
+      if (hasToken && typeof backendPost === "function" && typeof backendGet === "function") {
+        // Only create new announcements (without id) on backend
+        var newOnes = announcements.filter(function (a) {
+          return !a.id && a.title && a.body;
+        });
+        if (!newOnes.length) {
           if (saveStatusEl) {
             saveStatusEl.textContent =
-              "Could not save announcements. Please try again.";
-            saveStatusEl.className = "text-[11px] text-red-500";
+              "No new announcements to publish.";
+            saveStatusEl.className =
+              "text-[11px] text-slate-500";
           }
-        });
+          return;
+        }
+        var now = new Date();
+        var expiry = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + 30
+        )
+          .toISOString()
+          .slice(0, 10); // yyyy-MM-dd
+
+        Promise.all(
+          newOnes.map(function (a) {
+            return backendPost("/announcements", {
+              title: a.title,
+              body: a.body,
+              expiryDate: expiry,
+            });
+          })
+        )
+          .then(function () {
+            return backendGet("/announcements/all");
+          })
+          .then(function (list) {
+            announcements = (list || []).map(function (a) {
+              return {
+                id: a.id,
+                title: a.title,
+                body: a.body,
+                tag: "",
+              };
+            });
+            renderList();
+            if (saveStatusEl) {
+              saveStatusEl.textContent = "New announcements published to backend.";
+              saveStatusEl.className =
+                "text-[11px] text-emerald-600 transition-colors";
+              setTimeout(function () {
+                saveStatusEl.textContent =
+                  "Editing existing announcements is not yet synced back.";
+                saveStatusEl.className = "text-[11px] text-slate-400";
+              }, 3000);
+            }
+          })
+          .catch(function () {
+            if (saveStatusEl) {
+              saveStatusEl.textContent =
+                "Could not publish announcements to backend. Please try again.";
+              saveStatusEl.className = "text-[11px] text-red-500";
+            }
+          });
+      } else {
+        // Fallback to local mock persistence
+        apiPost("/hr/announcements", { announcements: announcements })
+          .then(function (list) {
+            announcements = list || [];
+            renderList();
+            if (saveStatusEl) {
+              saveStatusEl.textContent = "Announcements saved locally.";
+              saveStatusEl.className =
+                "text-[11px] text-emerald-600 transition-colors";
+              setTimeout(function () {
+                saveStatusEl.textContent =
+                  "Changes are stored locally for now.";
+                saveStatusEl.className = "text-[11px] text-slate-400";
+              }, 2500);
+            }
+          })
+          .catch(function () {
+            if (saveStatusEl) {
+              saveStatusEl.textContent =
+                "Could not save announcements. Please try again.";
+              saveStatusEl.className = "text-[11px] text-red-500";
+            }
+          });
+      }
     });
   }
 });

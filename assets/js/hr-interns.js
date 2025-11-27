@@ -9,11 +9,22 @@ document.addEventListener("DOMContentLoaded", function () {
   var createFormEl = document.getElementById("hr-interns-create-form");
   var createNameEl = document.getElementById("hr-create-name");
   var createEmailEl = document.getElementById("hr-create-email");
-  var createRoleEl = document.getElementById("hr-create-role");
-  var createManagerEl = document.getElementById("hr-create-manager");
+  var createPasswordEl = document.getElementById("hr-create-password");
   var createStartEl = document.getElementById("hr-create-start");
-  var createEndEl = document.getElementById("hr-create-end");
+  var createDurationEl = document.getElementById("hr-create-duration");
+  var createStipendTypeEl = document.getElementById("hr-create-stipend-type");
   var createStipendEl = document.getElementById("hr-create-stipend");
+  var createPanEl = document.getElementById("hr-create-pan");
+  var createAadhaarEl = document.getElementById("hr-create-aadhaar");
+  var createBankAccountEl = document.getElementById("hr-create-bank-account");
+  var createBankIfscEl = document.getElementById("hr-create-bank-ifsc");
+  var createBankNameEl = document.getElementById("hr-create-bank-name");
+  var createBankBranchEl = document.getElementById("hr-create-bank-branch");
+  var createAddressEl = document.getElementById("hr-create-address");
+  var createCityEl = document.getElementById("hr-create-city");
+  var createStateEl = document.getElementById("hr-create-state");
+  var createPincodeEl = document.getElementById("hr-create-pincode");
+  var createPhoneEl = document.getElementById("hr-create-phone");
   var createStatusEl = document.getElementById("hr-interns-create-status");
 
   var detailNameEl = document.getElementById("hr-intern-detail-name");
@@ -32,19 +43,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var internsCache = [];
   var selectedInternId = null;
+  var allInvoices = [];
 
-  apiGet("/hr/interns")
-    .then(function (interns) {
-      internsCache = interns || [];
-      renderList();
-    })
-    .catch(function (err) {
-      console.error("Failed to load HR interns", err);
-      if (listEl) {
-        listEl.innerHTML =
-          '<p class="text-[11px] text-red-500">Could not load interns.</p>';
-      }
-    });
+  // Prefer real backend data when HR is logged in, otherwise fall back to mock API
+  var hasToken = typeof getAuthToken === "function" && !!getAuthToken();
+
+  if (hasToken && typeof backendGet === "function") {
+    Promise.all([
+      backendGet("/interns/all"),
+      backendGet("/invoices/all").catch(function () {
+        return [];
+      }),
+    ])
+      .then(function ([interns, invoices]) {
+        interns = interns || [];
+        invoices = invoices || [];
+
+        // Map backend InternDetails -> UI intern shape
+        internsCache = interns.map(function (it) {
+          var user = it.user || {};
+          return {
+            id: String(it.id),
+            name: user.name || "Intern",
+            email: user.email || "",
+            role: "Intern",
+            manager: "", // Not tracked in backend yet
+            internshipStart: it.joiningDate,
+            internshipEnd:
+              it.internshipEndDate || it.joiningDate || null, // helper getter on entity
+            stipendPerMonth: it.stipendAmount,
+            status: "Active",
+          };
+        });
+
+        allInvoices = invoices || [];
+        renderList();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR interns from backend", err);
+        loadInternsFromMock();
+      });
+  } else {
+    loadInternsFromMock();
+  }
+
+  function loadInternsFromMock() {
+    apiGet("/hr/interns")
+      .then(function (interns) {
+        internsCache = interns || [];
+        renderList();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR interns (mock)", err);
+        if (listEl) {
+          listEl.innerHTML =
+            '<p class="text-[11px] text-red-500">Could not load interns.</p>';
+        }
+      });
+  }
 
   function renderList() {
     if (!listEl) return;
@@ -97,66 +153,72 @@ document.addEventListener("DOMContentLoaded", function () {
   function selectIntern(id) {
     selectedInternId = id;
     renderList();
+    var intern = internsCache.find(function (i) {
+      return String(i.id) === String(id);
+    });
+    if (!intern) return;
 
-    apiGet("/hr/interns/" + id)
-      .then(function (data) {
-        if (!data || !data.intern) return;
-        var intern = data.intern;
-        var profile = data.profile || {};
-        var leaves = data.leaves || [];
-        var invoices = data.invoices || [];
+    if (detailNameEl) detailNameEl.textContent = intern.name || "Intern";
+    if (detailRoleEl) {
+      var roleText = (intern.role || "Intern") + " · " + (intern.status || "Active");
+      detailRoleEl.textContent = roleText;
+    }
+    if (detailPeriodEl) {
+      detailPeriodEl.textContent =
+        formatDateHuman(intern.internshipStart) +
+        " – " +
+        formatDateHuman(intern.internshipEnd);
+    }
+    if (detailManagerEl) {
+      detailManagerEl.textContent =
+        "Manager: " + (intern.manager || "—");
+    }
 
-        if (detailNameEl) detailNameEl.textContent = intern.name || "Intern";
-        if (detailRoleEl) {
-          var roleText = (intern.role || "Intern") + " · " + (intern.status || "Active");
-          detailRoleEl.textContent = roleText;
-        }
-        if (detailPeriodEl) {
-          detailPeriodEl.textContent =
-            formatDateHuman(intern.internshipStart) +
-            " – " +
-            formatDateHuman(intern.internshipEnd);
-        }
-        if (detailManagerEl) {
-          detailManagerEl.textContent =
-            "Manager: " + (intern.manager || profile.manager || "—");
-        }
-
-        var paidUsed = leaves.filter(function (l) {
-          return l.type === "PAID";
-        }).length;
-        var unpaid = leaves.filter(function (l) {
-          return l.type === "UNPAID";
-        }).length;
-        if (detailLeavesEl) {
-          detailLeavesEl.textContent =
-            paidUsed + " paid used · " + unpaid + " unpaid total";
-        }
-
-        var lastInvoice = invoices[0] || null;
-        if (detailLastInvoiceEl) {
-          detailLastInvoiceEl.textContent = lastInvoice
-            ? formatMonthYear(lastInvoice.month, lastInvoice.year) +
-              " · ₹" +
-              (lastInvoice.finalStipend || 0).toLocaleString("en-IN", {
-                maximumFractionDigits: 0,
-              })
-            : "None yet";
-        }
-
-        if (detailEmailEl) {
-          detailEmailEl.textContent = intern.email || profile.email || "—";
-        }
-
-        [openProfileBtn, openLeavesBtn, openInvoicesBtn].forEach(function (
-          btn
-        ) {
-          if (btn) btn.disabled = false;
-        });
-      })
-      .catch(function (err) {
-        console.error("Failed to load HR intern detail", err);
+    // Derive last invoice from backend invoices if available
+    var lastInvoice = null;
+    if (allInvoices && allInvoices.length && intern.email) {
+      var emailLower = intern.email.toLowerCase();
+      var invs = allInvoices.filter(function (inv) {
+        return (inv.internEmail || "").toLowerCase() === emailLower;
       });
+      invs.sort(function (a, b) {
+        var da = new Date(a.billingPeriodFrom || a.invoiceDate || 0).getTime();
+        var db = new Date(b.billingPeriodFrom || b.invoiceDate || 0).getTime();
+        return db - da;
+      });
+      lastInvoice = invs[0] || null;
+    }
+
+    if (detailLeavesEl) {
+      detailLeavesEl.textContent =
+        "Detailed leave usage is available in the Leaves page.";
+    }
+
+    if (detailLastInvoiceEl) {
+      if (lastInvoice) {
+        var bpFrom = lastInvoice.billingPeriodFrom || lastInvoice.invoiceDate;
+        var d = bpFrom ? new Date(bpFrom) : null;
+        var label = d && !Number.isNaN(d.getTime())
+          ? d.toLocaleDateString(undefined, { month: "short", year: "numeric" })
+          : "";
+        detailLastInvoiceEl.textContent =
+          (label ? label + " · " : "") +
+          "₹" +
+          (lastInvoice.stipendAmount || 0).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+          });
+      } else {
+        detailLastInvoiceEl.textContent = "None yet";
+      }
+    }
+
+    if (detailEmailEl) {
+      detailEmailEl.textContent = intern.email || "—";
+    }
+
+    [openProfileBtn, openLeavesBtn, openInvoicesBtn].forEach(function (btn) {
+      if (btn) btn.disabled = false;
+    });
   }
 
   if (searchInput) {
@@ -166,12 +228,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (toggleCreateBtn && createFormEl) {
+    // Scroll to the separate create section when button is clicked
     toggleCreateBtn.addEventListener("click", function () {
-      var isHidden = createFormEl.classList.contains("hidden");
-      if (isHidden) {
-        createFormEl.classList.remove("hidden");
-      } else {
-        createFormEl.classList.add("hidden");
+      var section = document.getElementById("hr-interns-create-section");
+      if (section && typeof section.scrollIntoView === "function") {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });
   }
@@ -179,55 +240,129 @@ document.addEventListener("DOMContentLoaded", function () {
   if (createFormEl) {
     createFormEl.addEventListener("submit", function (e) {
       e.preventDefault();
-      var payload = {
-        name: createNameEl ? createNameEl.value.trim() : "",
-        email: createEmailEl ? createEmailEl.value.trim() : "",
-        role: createRoleEl ? createRoleEl.value.trim() : "",
-        manager: createManagerEl ? createManagerEl.value.trim() : "",
-        internshipStart: createStartEl ? createStartEl.value : "",
-        internshipEnd: createEndEl ? createEndEl.value : "",
-        stipendPerMonth: createStipendEl
-          ? Number(createStipendEl.value) || 0
-          : 0,
-      };
-      if (!payload.name || !payload.email || !payload.internshipStart) {
+      var name = createNameEl ? createNameEl.value.trim() : "";
+      var email = createEmailEl ? createEmailEl.value.trim() : "";
+      var password = createPasswordEl ? createPasswordEl.value.trim() : "";
+      var joiningDate = createStartEl ? createStartEl.value : "";
+      if (!name || !email || !password || !joiningDate) {
         if (createStatusEl) {
           createStatusEl.textContent =
-            "Name, email, and start date are required.";
+            "Name, email, password, and joining date are required.";
           createStatusEl.className =
             "text-[11px] text-red-500 mt-1";
         }
         return;
       }
-      apiPost("/hr/interns", payload)
-        .then(function () {
-          return apiGet("/hr/interns");
-        })
-        .then(function (interns) {
-          internsCache = interns || [];
-          renderList();
-          if (createFormEl) createFormEl.reset();
-          if (createStatusEl) {
-            createStatusEl.textContent =
-              "Intern saved locally. They can now log in with this email.";
-            createStatusEl.className =
-              "text-[11px] text-emerald-600 mt-1";
-            setTimeout(function () {
+      var duration =
+        createDurationEl && createDurationEl.value
+          ? Number(createDurationEl.value)
+          : 6;
+      var stipendAmount =
+        createStipendEl && createStipendEl.value
+          ? Number(createStipendEl.value)
+          : 0;
+      var stipendType =
+        createStipendTypeEl && createStipendTypeEl.value
+          ? createStipendTypeEl.value
+          : "MONTHLY";
+
+      var payload = {
+        email: email,
+        password: password,
+        name: name,
+        joiningDate: joiningDate,
+        internshipDurationMonths: duration,
+        stipendType: stipendType,
+        stipendAmount: stipendAmount,
+        panNumber: createPanEl ? createPanEl.value.trim() : "",
+        aadhaarNumber: createAadhaarEl ? createAadhaarEl.value.trim() : "",
+        bankAccountNumber: createBankAccountEl
+          ? createBankAccountEl.value.trim()
+          : "",
+        bankIfscCode: createBankIfscEl ? createBankIfscEl.value.trim() : "",
+        bankName: createBankNameEl ? createBankNameEl.value.trim() : "",
+        bankBranch: createBankBranchEl ? createBankBranchEl.value.trim() : "",
+        address: createAddressEl ? createAddressEl.value.trim() : "",
+        city: createCityEl ? createCityEl.value.trim() : "",
+        state: createStateEl ? createStateEl.value.trim() : "",
+        pincode: createPincodeEl ? createPincodeEl.value.trim() : "",
+        phoneNumber: createPhoneEl ? createPhoneEl.value.trim() : "",
+      };
+
+      if (hasToken && typeof backendPost === "function" && typeof backendGet === "function") {
+        backendPost("/interns/onboard", payload)
+          .then(function () {
+            return backendGet("/interns/all");
+          })
+          .then(function (interns) {
+            internsCache = (interns || []).map(function (it) {
+              var user = it.user || {};
+              return {
+                id: String(it.id),
+                name: user.name || "Intern",
+                email: user.email || "",
+                role: "Intern",
+                manager: "",
+                internshipStart: it.joiningDate,
+                internshipEnd:
+                  it.internshipEndDate || it.joiningDate || null,
+                stipendPerMonth: it.stipendAmount,
+                status: "Active",
+              };
+            });
+            renderList();
+            if (createFormEl) createFormEl.reset();
+            if (createStatusEl) {
               createStatusEl.textContent =
-                "New interns will be stored locally and can log in with the email above.";
+                "Intern created in backend. Share the email and password with them.";
               createStatusEl.className =
-                "text-[11px] text-slate-400 mt-1";
-            }, 2500);
-          }
+                "text-[11px] text-emerald-600 mt-1";
+            }
+          })
+          .catch(function (err) {
+            console.error("Failed to onboard intern via backend", err);
+            if (createStatusEl) {
+              createStatusEl.textContent =
+                (err && err.message) ||
+                "Could not onboard intern. Please check email/duration/stipend and try again.";
+              createStatusEl.className =
+                "text-[11px] text-red-500 mt-1";
+            }
+          });
+      } else {
+        // Fallback: local mock creation
+        apiPost("/hr/interns", {
+          name: name,
+          email: email,
+          role: "Intern",
+          manager: "",
+          internshipStart: joiningDate,
+          internshipEnd: "",
+          stipendPerMonth: stipendAmount,
         })
-        .catch(function () {
-          if (createStatusEl) {
-            createStatusEl.textContent =
-              "Could not create intern. Please try again.";
-            createStatusEl.className =
-              "text-[11px] text-red-500 mt-1";
-          }
-        });
+          .then(function () {
+            return apiGet("/hr/interns");
+          })
+          .then(function (interns) {
+            internsCache = interns || [];
+            renderList();
+            if (createFormEl) createFormEl.reset();
+            if (createStatusEl) {
+              createStatusEl.textContent =
+                "Intern saved locally. They can now log in with this email.";
+              createStatusEl.className =
+                "text-[11px] text-emerald-600 mt-1";
+            }
+          })
+          .catch(function () {
+            if (createStatusEl) {
+              createStatusEl.textContent =
+                "Could not create intern. Please try again.";
+              createStatusEl.className =
+                "text-[11px] text-red-500 mt-1";
+            }
+          });
+      }
     });
   }
 

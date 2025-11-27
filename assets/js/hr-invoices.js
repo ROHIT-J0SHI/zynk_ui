@@ -16,16 +16,86 @@ document.addEventListener("DOMContentLoaded", function () {
   var allInvoices = [];
   var allInterns = [];
 
-  Promise.all([apiGet("/hr/interns"), apiGet("/hr/invoices")])
-    .then(function ([interns, invoices]) {
-      allInterns = interns || [];
-      allInvoices = invoices || [];
-      populateFilters();
-      renderTable();
-    })
-    .catch(function (err) {
-      console.error("Failed to load HR invoices prerequisites", err);
-    });
+  var hasToken = typeof getAuthToken === "function" && !!getAuthToken();
+
+  if (hasToken && typeof backendGet === "function") {
+    Promise.all([
+      backendGet("/interns/all"),
+      backendGet("/invoices/all"),
+    ])
+      .then(function ([interns, invoices]) {
+        interns = interns || [];
+        invoices = invoices || [];
+
+        // Map backend interns into simple list
+        allInterns = interns.map(function (it) {
+          var user = it.user || {};
+          return {
+            id: String(it.id),
+            name: user.name || "Intern",
+            email: user.email || "",
+          };
+        });
+
+        // Build a lookup from email to internId
+        var internIdByEmail = {};
+        allInterns.forEach(function (it) {
+          if (it.email) {
+            internIdByEmail[it.email.toLowerCase()] = it.id;
+          }
+        });
+
+        // Map backend InvoiceResponse -> UI invoice shape
+        allInvoices = invoices.map(function (inv) {
+          var email = (inv.internEmail || "").toLowerCase();
+          var id = internIdByEmail[email] || null;
+          var bpFrom = inv.billingPeriodFrom || inv.invoiceDate;
+          var d = bpFrom ? new Date(bpFrom) : null;
+          var month = d && !Number.isNaN(d.getTime()) ? d.getMonth() + 1 : null;
+          var year = d && !Number.isNaN(d.getTime()) ? d.getFullYear() : null;
+
+          // Normalize status for UI: PENDING/APPROVED/PAID -> Generated/Paid
+          var uiStatus =
+            inv.status === "PAID"
+              ? "Paid"
+              : "Generated";
+
+          return {
+            id: inv.id,
+            internId: id,
+            internName: inv.internName || "Intern",
+            internEmail: inv.internEmail || "",
+            month: month,
+            year: year,
+            invoiceNumber: inv.invoiceNumber,
+            finalStipend: inv.stipendAmount,
+            status: uiStatus,
+          };
+        });
+
+        populateFilters();
+        renderTable();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR invoices prerequisites from backend", err);
+        loadFromMock();
+      });
+  } else {
+    loadFromMock();
+  }
+
+  function loadFromMock() {
+    Promise.all([apiGet("/hr/interns"), apiGet("/hr/invoices")])
+      .then(function ([interns, invoices]) {
+        allInterns = interns || [];
+        allInvoices = invoices || [];
+        populateFilters();
+        renderTable();
+      })
+      .catch(function (err) {
+        console.error("Failed to load HR invoices prerequisites (mock)", err);
+      });
+  }
 
   function populateFilters() {
     if (monthSelect) {
@@ -171,32 +241,12 @@ document.addEventListener("DOMContentLoaded", function () {
   if (statusSelect) statusSelect.addEventListener("change", renderTable);
 
   if (generateBtn) {
+    // In the real system, interns generate their own invoices.
+    // HR can view and update statuses only.
     generateBtn.addEventListener("click", function () {
-      var internId =
-        internSelect && internSelect.value !== "ALL"
-          ? internSelect.value
-          : allInterns[0] && allInterns[0].id;
-      var month =
-        monthSelect && monthSelect.value
-          ? Number(monthSelect.value)
-          : new Date().getMonth() + 1;
-      var year =
-        yearSelect && yearSelect.value
-          ? Number(yearSelect.value)
-          : new Date().getFullYear();
-
-      apiPost("/hr/invoices", { internId: internId, month: month, year: year })
-        .then(function (inv) {
-          // Refresh invoice list
-          return apiGet("/hr/invoices").then(function (invoices) {
-            allInvoices = invoices || [];
-            renderTable();
-          });
-        })
-        .catch(function (err) {
-          console.error("Failed to generate HR invoice", err);
-          alert("Could not generate invoice in mock data.");
-        });
+      alert(
+        "Invoices are generated from the intern dashboard. As HR you can review and update their status here."
+      );
     });
   }
 });

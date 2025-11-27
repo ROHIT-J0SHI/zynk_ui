@@ -207,8 +207,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (helperTextEl) {
       helperTextEl.textContent =
-        "This is a mock invoice based on your current profile and leave data.";
-      helperTextEl.className = "text-[11px] text-slate-500";
+        "This invoice is generated from the backend based on your actual leave and internship data.";
+      helperTextEl.className = "text-[11px] text-emerald-600";
     }
   }
 

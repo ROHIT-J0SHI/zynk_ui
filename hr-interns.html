@@ -132,71 +132,6 @@
                   + Create intern
                 </button>
               </div>
-              <form
-                id="hr-interns-create-form"
-                class="hidden mt-2 space-y-2 text-xs border-t border-slate-100 pt-2"
-              >
-                <div class="grid gap-2">
-                  <input
-                    id="hr-create-name"
-                    type="text"
-                    required
-                    placeholder="Full name"
-                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                  />
-                  <input
-                    id="hr-create-email"
-                    type="email"
-                    required
-                    placeholder="Email (used for intern login)"
-                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                  />
-                  <input
-                    id="hr-create-role"
-                    type="text"
-                    placeholder="Role (e.g. Product Intern)"
-                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                  />
-                  <input
-                    id="hr-create-manager"
-                    type="text"
-                    placeholder="Manager / Mentor"
-                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                  />
-                  <div class="grid grid-cols-2 gap-2">
-                    <input
-                      id="hr-create-start"
-                      type="date"
-                      required
-                      class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                    />
-                    <input
-                      id="hr-create-end"
-                      type="date"
-                      class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                    />
-                  </div>
-                  <input
-                    id="hr-create-stipend"
-                    type="number"
-                    min="0"
-                    placeholder="Monthly stipend (₹)"
-                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  class="w-full inline-flex items-center justify-center px-3 py-1.5 rounded-xl bg-brand-600 text-white text-[11px] font-semibold hover:bg-brand-700"
-                >
-                  Save intern
-                </button>
-                <p
-                  id="hr-interns-create-status"
-                  class="text-[11px] text-slate-400 mt-1"
-                >
-                  New interns will be stored locally and can log in with the email above.
-                </p>
-              </form>
               <div
                 id="hr-interns-list"
                 class="mt-2 space-y-1 max-h-[420px] overflow-y-auto text-xs"
@@ -305,6 +240,147 @@
               </div>
             </section>
           </div>
+
+          <!-- Create intern section: full-width horizontal card -->
+          <section
+            class="mt-6 if-glass rounded-2xl border border-white/70 px-5 py-4 md:px-6 md:py-5 shadow-sm space-y-3 max-w-5xl mx-auto"
+            id="hr-interns-create-section"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-semibold text-slate-900">
+                  Create new intern
+                </h2>
+                <p class="text-xs text-slate-500">
+                  Add core details. Intern will fill KYC/bank info from their own portal.
+                </p>
+              </div>
+            </div>
+            <form
+              id="hr-interns-create-form"
+              class="space-y-3 text-xs"
+            >
+              <div class="grid md:grid-cols-3 gap-3">
+                <div class="grid gap-1">
+                  <label
+                    for="hr-create-name"
+                    class="text-[11px] font-medium text-slate-600"
+                    >Full name</label
+                  >
+                  <input
+                    id="hr-create-name"
+                    type="text"
+                    required
+                    placeholder="Full name"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="grid gap-1">
+                  <label
+                    for="hr-create-email"
+                    class="text-[11px] font-medium text-slate-600"
+                    >Email (used for intern login)</label
+                  >
+                  <input
+                    id="hr-create-email"
+                    type="email"
+                    required
+                    placeholder="Email (used for intern login)"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="grid gap-1">
+                  <label
+                    for="hr-create-password"
+                    class="text-[11px] font-medium text-slate-600"
+                    >Temporary password</label
+                  >
+                  <input
+                    id="hr-create-password"
+                    type="text"
+                    required
+                    placeholder="Set initial password to share"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-3">
+                <div class="grid gap-1">
+                  <label
+                    for="hr-create-start"
+                    class="text-[11px] font-medium text-slate-600"
+                    >Joining date</label
+                  >
+                  <input
+                    id="hr-create-start"
+                    type="date"
+                    required
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="grid gap-1">
+                  <label
+                    for="hr-create-duration"
+                    class="text-[11px] font-medium text-slate-600"
+                    >Duration (months)</label
+                  >
+                  <input
+                    id="hr-create-duration"
+                    type="number"
+                    min="1"
+                    max="12"
+                    value="6"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="grid gap-1">
+                  <label
+                    for="hr-create-stipend-type"
+                    class="text-[11px] font-medium text-slate-600"
+                    >Stipend type</label
+                  >
+                  <select
+                    id="hr-create-stipend-type"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  >
+                    <option value="MONTHLY">MONTHLY</option>
+                    <option value="DAILY">DAILY</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-3">
+                <div class="grid gap-1">
+                  <label
+                    for="hr-create-stipend"
+                    class="text-[11px] font-medium text-slate-600"
+                    >Stipend amount (₹)</label
+                  >
+                  <input
+                    id="hr-create-stipend"
+                    type="number"
+                    min="0"
+                    placeholder="15000"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                <p
+                  id="hr-interns-create-status"
+                  class="text-[11px] text-slate-400"
+                >
+                  Intern will be created in the backend and can log in with this
+                  email and password.
+                </p>
+                <button
+                  type="submit"
+                  class="inline-flex items-center justify-center px-3 py-1.5 rounded-xl bg-brand-600 text-white text-[11px] font-semibold hover:bg-brand-700"
+                >
+                  Save intern
+                </button>
+              </div>
+            </form>
+          </section>
         </main>
       </div>
     </div>

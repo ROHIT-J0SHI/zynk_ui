@@ -153,12 +153,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (statusEl) {
             statusEl.textContent =
-              "Leave request submitted locally as Pending.";
+              "Leave request submitted. Waiting for HR/manager approval.";
             statusEl.className =
               "mt-1 text-[11px] text-emerald-600 transition-colors";
             setTimeout(function () {
               statusEl.textContent =
-                "For now this stays in your browser. Later it will notify HR.";
+                "Approved requests will automatically be counted as paid/unpaid based on policy.";
               statusEl.className = "mt-1 text-[11px] text-slate-500";
             }, 2500);
           }

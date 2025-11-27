@@ -252,26 +252,61 @@
                   <label
                     for="profile-aadhaar"
                     class="block text-xs font-medium text-slate-700"
-                    >Aadhaar (masked)</label
+                    >Aadhaar number</label
                   >
                   <input
                     id="profile-aadhaar"
-                    name="aadhaarMasked"
+                    name="aadhaarNumber"
                     class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
-                    placeholder="XXXX-XXXX-1234"
+                    placeholder="12 digit Aadhaar"
                   />
                 </div>
                 <div class="space-y-1.5">
                   <label
                     for="profile-bank"
                     class="block text-xs font-medium text-slate-700"
-                    >Bank account (last 4 digits)</label
+                    >Bank account number</label
                   >
                   <input
                     id="profile-bank"
-                    name="bankAccountLast4"
-                    maxlength="4"
-                    pattern="[0-9]{4}"
+                    name="bankAccountNumber"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-ifsc"
+                    class="block text-xs font-medium text-slate-700"
+                    >IFSC code</label
+                  >
+                  <input
+                    id="profile-ifsc"
+                    name="bankIfscCode"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm uppercase outline-none focus:ring-1 focus:ring-brand-500"
+                    placeholder="e.g. HDFC0001234"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-bank-name"
+                    class="block text-xs font-medium text-slate-700"
+                    >Bank name</label
+                  >
+                  <input
+                    id="profile-bank-name"
+                    name="bankName"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-bank-branch"
+                    class="block text-xs font-medium text-slate-700"
+                    >Bank branch</label
+                  >
+                  <input
+                    id="profile-bank-branch"
+                    name="bankBranch"
                     class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
                   />
                 </div>
@@ -288,10 +323,22 @@
                     class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-brand-500 resize-none"
                   ></textarea>
                 </div>
+                <div class="space-y-1.5">
+                  <label
+                    for="profile-phone"
+                    class="block text-xs font-medium text-slate-700"
+                    >Phone number</label
+                  >
+                  <input
+                    id="profile-phone"
+                    name="phoneNumber"
+                    class="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
               </div>
               <p class="text-[10px] text-slate-400 mt-2">
-                Signature upload placeholder will come here when we connect to
-                backend.
+                These details are visible to HR. Once HR verifies your KYC,
+                PAN/Aadhaar/bank fields will be locked.
               </p>
             </section>
 

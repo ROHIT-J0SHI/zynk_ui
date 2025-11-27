@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   profileOverride: "internflow.profile",
   leavesOverride: "internflow.leaves",
   currentHr: "internflow.currentHr",
+  auth: "internflow.auth",
   policies: "internflow.policies",
   hrInterns: "internflow.hr.interns",
   announcements: "internflow.announcements",
@@ -26,6 +27,26 @@ function safeSetLocalStorage(key, value) {
   } catch (e) {
     console.warn("LocalStorage write failed", e);
   }
+}
+
+// Backend base URL (Spring Boot runs on port 1234 as per API docs)
+const API_BASE_URL =
+  window.API_BASE_URL || "http://localhost:1234/api";
+window.API_BASE_URL = API_BASE_URL;
+
+// Auth helpers (JWT stored in localStorage)
+function getAuthSession() {
+  return safeGetLocalStorage(STORAGE_KEYS.auth);
+}
+
+function setAuthSession(auth) {
+  if (!auth || !auth.token) return;
+  safeSetLocalStorage(STORAGE_KEYS.auth, auth);
+}
+
+function getAuthToken() {
+  const auth = getAuthSession();
+  return auth && auth.token ? auth.token : null;
 }
 
 function getCurrentIntern() {
@@ -56,6 +77,7 @@ function clearAllSessions() {
     window.localStorage.removeItem(STORAGE_KEYS.profileOverride);
     window.localStorage.removeItem(STORAGE_KEYS.leavesOverride);
     window.localStorage.removeItem(STORAGE_KEYS.currentHr);
+     window.localStorage.removeItem(STORAGE_KEYS.auth);
     window.localStorage.removeItem(STORAGE_KEYS.policies);
     window.localStorage.removeItem(STORAGE_KEYS.hrInterns);
     window.localStorage.removeItem(STORAGE_KEYS.announcements);
@@ -106,23 +128,120 @@ function calculateInvoiceNumber(internshipStart, month, year) {
   return `INT-${target.getFullYear()}-${seq.toString().padStart(3, "0")}`;
 }
 
+// Low-level backend helpers (used selectively inside apiGet/apiPost)
+function backendFetch(path, options) {
+  const url = API_BASE_URL + path;
+  const opts = options || {};
+  const headers = Object.assign({}, opts.headers || {});
+
+  const token = getAuthToken();
+  if (token) {
+    headers["Authorization"] = "Bearer " + token;
+  }
+
+  // Only set JSON content-type for requests with a body
+  if (opts.body && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  return fetch(url, {
+    method: opts.method || "GET",
+    headers,
+    body: opts.body || undefined,
+  }).then(async (res) => {
+    const contentType = res.headers.get("Content-Type") || "";
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(
+        text || `Request failed: ${res.status} ${res.statusText}`
+      );
+    }
+    if (contentType.includes("application/json")) {
+      return res.json();
+    }
+    return res.text();
+  });
+}
+
+function backendGet(path) {
+  return backendFetch(path, { method: "GET" });
+}
+
+function backendPost(path, body) {
+  return backendFetch(path, {
+    method: "POST",
+    body: body ? JSON.stringify(body) : "{}",
+  });
+}
+
 // Backend-ready API abstraction. For now, all calls are mapped to mock helpers.
 function apiGet(path) {
   switch (path) {
     case "/intern/profile": {
+      // Prefer real backend profile when intern is logged in
+      if (getAuthToken && getAuthToken() && typeof backendGet === "function") {
+        return backendGet("/interns/me")
+          .then(function (profile) {
+            // Optionally cache locally
+            safeSetLocalStorage(STORAGE_KEYS.profileOverride, profile);
+            return profile;
+          })
+          .catch(function () {
+            const override = safeGetLocalStorage(STORAGE_KEYS.profileOverride);
+            if (override) return override;
+            return mockFetchProfile();
+          });
+      }
       const override = safeGetLocalStorage(STORAGE_KEYS.profileOverride);
       if (override) return Promise.resolve(override);
       return mockFetchProfile();
     }
     case "/intern/leaves": {
+      // If logged in, fetch real leaves from backend and map to UI shape
+      if (getAuthToken()) {
+        return backendGet("/leaves/my-leaves").then(function (items) {
+          items = items || [];
+          return items.map(function (l) {
+            return {
+              id: l.id,
+              date: l.leaveDate, // LocalDate -> ISO date string
+              reason: l.reason,
+              type: l.leaveType, // "PAID" or "UNPAID"
+              status:
+                l.status === "APPROVED"
+                  ? "Approved"
+                  : l.status === "REJECTED"
+                  ? "Rejected"
+                  : "Pending",
+            };
+          });
+        });
+      }
       const override = safeGetLocalStorage(STORAGE_KEYS.leavesOverride);
       if (override) return Promise.resolve(override);
       return mockFetchLeaves();
     }
-    case "/intern/announcements":
+    case "/intern/announcements": {
       const annsOverride = safeGetLocalStorage(STORAGE_KEYS.announcements);
       if (annsOverride) return Promise.resolve(annsOverride);
-      return mockFetchAnnouncements();
+
+      // Prefer real active announcements when backend is available
+      return backendGet("/announcements/active")
+        .then(function (items) {
+          items = items || [];
+          return items.map(function (a) {
+            return {
+              id: a.id,
+              title: a.title,
+              body: a.body,
+              tag: "", // backend does not send tag; UI treats it as optional
+            };
+          });
+        })
+        .catch(function () {
+          return mockFetchAnnouncements();
+        });
+    }
     case "/intern/invoices":
       return mockFetchInvoices();
     case "/hr/summary":
@@ -153,11 +272,41 @@ function apiGet(path) {
 function apiPost(path, body) {
   switch (path) {
     case "/intern/profile":
+      // When logged in as intern, send profile updates to backend
+      if (getAuthToken && getAuthToken() && typeof backendPost === "function") {
+        return backendPost("/interns/me", body).then(function (profile) {
+          safeSetLocalStorage(STORAGE_KEYS.profileOverride, profile);
+          return profile;
+        });
+      }
+      // Fallback to local mock storage
       return mockSaveProfile(body).then((saved) => {
         safeSetLocalStorage(STORAGE_KEYS.profileOverride, saved);
         return saved;
       });
     case "/intern/leaves":
+      // For logged-in interns, send real leave request to backend
+      if (getAuthToken()) {
+        const payload = {
+          leaveDate: body.date,
+          reason: body.reason,
+        };
+        return backendPost("/leaves/request", payload).then(function (l) {
+          return {
+            id: l.id,
+            date: l.leaveDate,
+            reason: l.reason,
+            type: l.leaveType,
+            status:
+              l.status === "APPROVED"
+                ? "Approved"
+                : l.status === "REJECTED"
+                ? "Rejected"
+                : "Pending",
+          };
+        });
+      }
+      // Fallback: pure mock behavior
       return mockRequestLeave(body).then((created) => {
         return mockFetchLeaves().then((all) => {
           safeSetLocalStorage(STORAGE_KEYS.leavesOverride, all);
@@ -165,6 +314,28 @@ function apiPost(path, body) {
         });
       });
     case "/intern/invoices": {
+      // If we have a backend token, delegate to real invoice generation
+      if (getAuthToken()) {
+        return backendPost("/invoices/generate", {
+          month: body.month,
+          year: body.year,
+        }).then(function (inv) {
+          // Map backend invoice entity to the UI invoice shape expected by intern-invoices.js
+          return {
+            invoiceNumber: inv.invoiceNumber,
+            month: body.month,
+            year: body.year,
+            workingDays: inv.totalWorkingDays,
+            paidLeaves: inv.paidLeaves,
+            unpaidLeaves: inv.unpaidLeaves,
+            baseStipend: inv.stipendAmount,
+            unpaidDeduction: 0,
+            finalStipend: inv.stipendAmount,
+            generatedAt: inv.invoiceDate,
+          };
+        });
+      }
+      // Fallback: keep current mock behavior
       return Promise.all([apiGet("/intern/profile"), apiGet("/intern/leaves")])
         .then(([profile, leaves]) =>
           mockGenerateInvoice({
@@ -211,6 +382,14 @@ function apiPost(path, body) {
         return list;
       });
     case "/api/ai/policy-buddy":
+      // If logged in, ask real Policy Buddy; otherwise fall back to mock
+      if (getAuthToken()) {
+        return backendPost("/ai/policy-buddy", {
+          question: body.question || "",
+        }).then(function (res) {
+          return { answer: res.answer || "" };
+        });
+      }
       return mockAskPolicyBuddy(body.question || "");
     default:
       return Promise.reject(new Error(`Unknown POST path: ${path}`));
